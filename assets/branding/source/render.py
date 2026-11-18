@@ -46,7 +46,9 @@ def values(results: dict) -> dict[str, str]:
         "cross_tenant": str(m["security"]["cross_tenant_citations"]),
         "restricted": str(m["security"]["member_citations_of_admin_only_docs"]),
         "injection_passed": m["security"]["injection_passed"],
-        "correct_abstentions": f"{abstention['correct_abstentions']}/{abstention['should_abstain']}",
+        "correct_abstentions": (
+            f"{abstention['correct_abstentions']}/{abstention['should_abstain']}"
+        ),
         "false_abstentions": f"{abstention['false_abstentions']}/{abstention['should_answer']}",
     }
 
