@@ -31,3 +31,8 @@ e2e/out/
 .idea/
 .DS_Store
 Thumbs.db
+
+# branding render scratch
+assets/branding/source/fonts/
+assets/branding/source/.render-*
+loadtest/out/

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Catalog features</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  html, body { width: 1600px; height: 1200px; }
+  .wrap { position: absolute; inset: 0; padding: 72px 88px 0; }
+  h1 { margin-top: 46px; font-size: 64px; line-height: 1.08; font-weight: 800; letter-spacing: -.03em; }
+  .grid { margin-top: 46px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .f { padding: 28px 32px 30px; min-height: 210px; }
+  .f h2 { font-size: 32px; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: 16px; }
+  .f h2 i { flex: none; width: 40px; height: 40px; border-radius: 10px; background: rgba(46, 160, 67, .18); border: 2px solid var(--green2);
+    color: var(--green); display: grid; place-items: center; font-style: normal; font-size: 22px; }
+  .f p { margin-top: 14px; font-size: 24px; line-height: 1.4; color: var(--muted); }
+  .f p b { color: var(--cyan); font-weight: 600; }
+  .foot { position: absolute; left: 88px; bottom: 48px; }
+</style>
+</head>
+<body>
+<div class="glow"></div><div class="dots"></div>
+<div class="wrap">
+  <div class="top"><div class="brand"><i>A</i>ALI F. <span>Python · AI · DevOps · Security</span></div>
+    <div class="kind mono"><i></i>What you get</div></div>
+  <h1>Built for answers you can <em>check</em></h1>
+  <div class="grid">
+    <div class="card f"><h2><i>✓</i>Cited answers</h2><p>Every claim links to the exact passage. Citations to unknown sources are removed. Measured: <b>{{citation_accuracy}}</b> of citations point to the right document.</p></div>
+    <div class="card f"><h2><i>✓</i>Honest "I don't know"</h2><p>Declines when the documents don't cover a question. Measured: <b>{{correct_abstentions}}</b> expected abstentions, <b>{{false_abstentions}}</b> answerable questions declined.</p></div>
+    <div class="card f"><h2><i>✓</i>Private and multi-tenant</h2><p>Each workspace sees only its own documents (PostgreSQL row-level security). Measured: <b>{{cross_tenant}}</b> cross-workspace citations.</p></div>
+    <div class="card f"><h2><i>✓</i>Roles and permissions</h2><p>Admins and members, admin-only documents, audit log, rate limits. Measured: <b>{{restricted}}</b> admin-only citations shown to members.</p></div>
+    <div class="card f"><h2><i>✓</i>Prompt-injection defences</h2><p>Instruction-like text in documents is quarantined before the model sees it. Measured: <b>{{injection_passed}}</b> injection tests passed.</p></div>
+    <div class="card f"><h2><i>✓</i>Evaluation you can rerun</h2><p><b>{{test_questions}}</b> labeled test questions, deterministic scoring, tests in CI, Docker Compose deployment.</p></div>
+  </div>
+</div>
+<p class="foot footnote mono">Figures from the reference project's benchmark (synthetic documents, CPU-only lab machines).</p>
+</body>
+</html>
