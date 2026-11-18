@@ -1,0 +1,8 @@
+# Development, test and evaluation tools. Locked into requirements-dev.txt by scripts/lock.sh.
+-c requirements.txt
+pytest==9.2.0
+pytest-cov==7.1.0
+ruff==0.17.4
+mypy==2.4.1
+pip-audit==2.10.1
+reportlab==5.1.0

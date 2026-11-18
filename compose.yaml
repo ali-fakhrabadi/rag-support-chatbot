@@ -1,0 +1,141 @@
+# Local and single-host deployment.
+#
+#   scripts/init-secrets.sh          # once
+#   cp .env.example .env             # adjust RAG_OLLAMA_BASE_URL etc.
+#   docker compose up -d --build
+#
+# PostgreSQL and Redis sit on an internal network with no published ports. Only the web
+# container is published, and only on 127.0.0.1 unless WEB_BIND says otherwise.
+
+x-backend: &backend
+  build:
+    context: ./backend
+    target: runtime
+    args:
+      PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+  image: rag-support-chatbot-backend:${APP_VERSION:-dev}
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    RAG_DB_HOST: postgres
+    RAG_DB_USER: rag_app
+    RAG_DB_PASSWORD_FILE: /run/secrets/db_app_password
+    RAG_JWT_SECRET_FILE: /run/secrets/jwt_secret
+    RAG_OPENAI_API_KEY_FILE: /run/secrets/openai_api_key
+    RAG_REDIS_URL: redis://redis:6379/0
+  secrets: [db_app_password, jwt_secret, openai_api_key]
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  extra_hosts: ["host.docker.internal:host-gateway"]
+  networks: [data, egress]
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-pgvector/pgvector:0.8.7-pg17-bookworm@sha256:b513c48566e4777cd3370451400000c78eda6a08131d68f4c31d4a76f27bd8fd}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rag_owner
+      POSTGRES_DB: rag
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_owner_password
+    secrets: [db_owner_password, db_app_password]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/postgres/10-app-role.sh:/docker-entrypoint-initdb.d/10-app-role.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag_owner -d rag"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    shm_size: 256mb
+    networks: [data]
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.4.11-alpine@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541}
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb",
+              "--maxmemory-policy", "noeviction"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    cap_drop: [ALL]
+    cap_add: [SETUID, SETGID]
+    security_opt: ["no-new-privileges:true"]
+    networks: [data]
+
+  migrate:
+    <<: *backend
+    restart: "no"
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      RAG_DB_HOST: postgres
+      RAG_DB_USER: rag_app
+      RAG_DB_ADMIN_USER: rag_owner
+      RAG_DB_ADMIN_PASSWORD_FILE: /run/secrets/db_owner_password
+    secrets: [db_owner_password]
+    networks: [data]
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  api:
+    <<: *backend
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  worker:
+    <<: *backend
+    command: ["celery", "-A", "app.worker", "worker", "--loglevel=INFO", "--concurrency=2",
+              "-Q", "ingestion", "--without-gossip", "--without-mingle"]
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.worker inspect ping -d celery@$$HOSTNAME --timeout 5 | grep -q pong"]
+      interval: 30s
+      timeout: 15s
+      start_period: 20s
+      retries: 3
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+
+  web:
+    build: {context: ./frontend}
+    image: rag-support-chatbot-web:${APP_VERSION:-dev}
+    restart: unless-stopped
+    ports: ["${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:8080"]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      api: {condition: service_healthy}
+    networks: [egress]
+
+  # Optional self-contained model server: `docker compose --profile ollama up -d`, then pull the
+  # models explicitly (see docs/deployment.md). Not started by default, nothing is downloaded
+  # automatically.
+  ollama:
+    profiles: [ollama]
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.40.16}
+    restart: unless-stopped
+    volumes: [ollama:/root/.ollama]
+    networks: [egress]
+
+networks:
+  data:
+    internal: true
+  egress: {}
+
+volumes:
+  pgdata: {}
+  redisdata: {}
+  ollama: {}
+
+secrets:
+  db_owner_password: {file: ./secrets/db_owner_password}
+  db_app_password: {file: ./secrets/db_app_password}
+  jwt_secret: {file: ./secrets/jwt_secret}
+  openai_api_key: {file: ./secrets/openai_api_key}

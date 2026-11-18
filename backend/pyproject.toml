@@ -1,0 +1,62 @@
+[project]
+name = "rag-support-chatbot"
+version = "0.1.0"
+description = "Secure, self-hostable RAG knowledge assistant: grounded answers with citations, tenant isolation, local models."
+readme = "../README.md"
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "C4", "SIM", "RUF", "PT", "RET", "ARG"]
+ignore = [
+    "S101",   # assert is fine in tests
+    "B008",   # FastAPI Depends() in defaults is the framework's idiom
+    "RUF012", # class-level mutable defaults are used for constants
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Compound asserts and subprocess calls with fixed arguments are fine in tests.
+"tests/**" = ["S105", "S106", "S311", "S603", "ARG001", "ARG002", "ARG005", "PT012", "PT018", "PT022"]
+"scripts/**" = ["S311"]
+# Only the constant _FILTER string is interpolated into these queries; every value is a bound
+# parameter.
+"app/services/retrieval.py" = ["S608"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+warn_unused_ignores = true
+exclude = ["alembic/", "tests/"]
+
+[[tool.mypy.overrides]]
+module = ["celery.*", "pgvector.*", "kombu.*"]
+ignore_missing_imports = true
+
+# Celery ships without type hints, so its task decorators are untyped.
+[[tool.mypy.overrides]]
+module = ["app.worker"]
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: needs real PostgreSQL (pgvector) and Redis",
+    "models: needs a real Ollama with the configured embedding model and LLM",
+]
+filterwarnings = ["error::pytest.PytestUnraisableExceptionWarning"]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+omit = ["app/cli.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
