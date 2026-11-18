@@ -57,7 +57,7 @@ class OllamaEmbeddings:
         self._batch = settings.embedding_batch_size
         self._keep_alive = settings.llm_keep_alive
         self._client = client or httpx.Client(
-            base_url=settings.ollama_base_url, timeout=settings.embed_timeout_s
+            base_url=settings.embedding_base_url, timeout=settings.embed_timeout_s
         )
 
     def _embed(self, inputs: list[str]) -> list[list[float]]:

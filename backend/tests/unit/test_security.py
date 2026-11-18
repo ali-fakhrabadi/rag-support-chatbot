@@ -143,6 +143,14 @@ def test_nomic_prefixes_are_applied_automatically() -> None:
     assert settings(embedding_model="mxbai-embed-large").query_prefix == ""
 
 
+def test_embeddings_can_use_a_separate_ollama() -> None:
+    assert settings(ollama_base_url="http://gen:11434").embedding_base_url == "http://gen:11434"
+    split = settings(
+        ollama_base_url="http://gen:11434", ollama_embedding_base_url="http://emb:11434"
+    )
+    assert split.embedding_base_url == "http://emb:11434"
+
+
 # --- logging redaction ------------------------------------------------------------------------
 def test_redaction_of_tokens_and_keys() -> None:
     text = (

@@ -84,6 +84,9 @@ class Settings(BaseSettings):
     llm_keep_alive: str = "30m"
 
     ollama_base_url: str = "http://ollama:11434"
+    # Optional separate Ollama for embeddings (for example a small CPU host next to the database
+    # while generation runs on a bigger machine). Defaults to ollama_base_url.
+    ollama_embedding_base_url: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
     openai_api_key: SecretStr | None = None
 
@@ -91,7 +94,7 @@ class Settings(BaseSettings):
     retrieval_top_k: int = Field(5, ge=1, le=20)
     retrieval_candidates: int = Field(20, ge=5, le=200)
     rrf_k: int = 60
-    min_similarity: float = Field(0.55, ge=-1.0, le=1.0)
+    min_similarity: float = Field(0.54, ge=-1.0, le=1.0)
     history_messages: int = Field(4, ge=0, le=20)
     hnsw_ef_search: int = 100
 
@@ -126,6 +129,10 @@ class Settings(BaseSettings):
     @property
     def max_upload_bytes(self) -> int:
         return self.max_upload_mb * 1024 * 1024
+
+    @property
+    def embedding_base_url(self) -> str:
+        return self.ollama_embedding_base_url or self.ollama_base_url
 
     @property
     def doc_prefix(self) -> str:

@@ -28,14 +28,22 @@ Each engineer receives one laptop every 36 months.
 """
 
 
-def call(base: str, method: str, path: str, token: str | None = None,
-         body: dict[str, Any] | None = None, raw: bytes | None = None,
-         content_type: str = "application/json") -> tuple[int, Any]:
+def call(
+    base: str,
+    method: str,
+    path: str,
+    token: str | None = None,
+    body: dict[str, Any] | None = None,
+    raw: bytes | None = None,
+    content_type: str = "application/json",
+) -> tuple[int, Any]:
     headers = {"Content-Type": content_type}
     if token:
         headers["Authorization"] = f"Bearer {token}"
     data = raw if raw is not None else (json.dumps(body).encode() if body is not None else None)
-    request = urllib.request.Request(base + path, data=data, method=method, headers=headers)
+    request = urllib.request.Request(  # noqa: S310 - http(s) base URL from the operator
+        base + path, data=data, method=method, headers=headers
+    )
     try:
         with urllib.request.urlopen(request, timeout=600) as response:  # noqa: S310
             text = response.read().decode()
@@ -48,11 +56,15 @@ def multipart(filename: str, content: bytes, fields: dict[str, str]) -> tuple[by
     boundary = uuid.uuid4().hex
     parts = []
     for name, value in fields.items():
-        parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n'
-                     f"{value}\r\n".encode())
+        parts.append(
+            f'--{boundary}\r\nContent-Disposition: form-data; name="{name}"\r\n\r\n'
+            f"{value}\r\n".encode()
+        )
     parts.append(
         f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\n'
-        f"Content-Type: text/markdown\r\n\r\n".encode() + content + b"\r\n"
+        f"Content-Type: text/markdown\r\n\r\n".encode()
+        + content
+        + b"\r\n"
     )
     parts.append(f"--{boundary}--\r\n".encode())
     return b"".join(parts), f"multipart/form-data; boundary={boundary}"
@@ -68,8 +80,12 @@ def main() -> None:
     base = args.base_url.rstrip("/")
     password = Path(args.password_file).read_text(encoding="utf-8").strip()
 
-    status, tokens = call(base, "POST", "/api/v1/auth/login", body={
-        "email": args.email, "password": password, "workspace": args.workspace})
+    status, tokens = call(
+        base,
+        "POST",
+        "/api/v1/auth/login",
+        body={"email": args.email, "password": password, "workspace": args.workspace},
+    )
     assert status == 200, (status, tokens)
     token = tokens["access_token"]
 
@@ -87,14 +103,18 @@ def main() -> None:
     print(f"ingestion {job['status']} in {time.time() - started:.1f}s", job.get("error") or "")
     assert job["status"] == "succeeded"
 
-    for question in ("How many business days do managers have to approve expense reports?",
-                     "What is the parking policy for visitors?"):
+    for question in (
+        "How many business days do managers have to approve expense reports?",
+        "What is the parking policy for visitors?",
+    ):
         started = time.time()
         status, answer = call(base, "POST", "/api/v1/chat", token, body={"question": question})
         assert status == 200, (status, answer)
         a = answer["answer"]
-        print(f"\nQ: {question}\nA ({time.time() - started:.1f}s, abstained={a['abstained']}): "
-              f"{a['content']}")
+        print(
+            f"\nQ: {question}\nA ({time.time() - started:.1f}s, abstained={a['abstained']}): "
+            f"{a['content']}"
+        )
         for c in a["citations"]:
             print(f"   [{c['source_id']}] {c['document_title']} / {c['section']}")
 
