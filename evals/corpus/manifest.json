@@ -1,0 +1,39 @@
+{
+  "tenants": [
+    {
+      "slug": "larkspur",
+      "name": "Larkspur Outfitters",
+      "users": [
+        {"email": "admin@larkspur.example", "full_name": "Riley Admin", "role": "tenant_admin"},
+        {"email": "agent@larkspur.example", "full_name": "Sam Agent", "role": "member"}
+      ],
+      "documents": [
+        {"file": "larkspur/returns-and-refunds.md", "title": "Returns and Refunds Policy"},
+        {"file": "larkspur/shipping-policy.md", "title": "Shipping Policy"},
+        {"file": "larkspur/holiday-shipping-2026.md", "title": "Holiday Shipping Update 2026"},
+        {"file": "larkspur/loyalty-program.txt", "title": "Larkspur Club Member Guide"},
+        {"file": "larkspur/store-locations-and-hours.txt", "title": "Stores, Hours and Services"},
+        {"file": "larkspur/warranty.pdf", "title": "Larkspur Gear Warranty"},
+        {"file": "larkspur/product-care-guide.md", "title": "Product Care Guide"},
+        {"file": "larkspur/employee-handbook.pdf", "title": "Employee Handbook"},
+        {"file": "larkspur/travel-and-expense-policy.md", "title": "Travel and Expense Policy"},
+        {"file": "larkspur/it-security-policy.md", "title": "Information Security Policy"},
+        {"file": "larkspur/vendor-onboarding-notes.txt", "title": "Vendor Onboarding Notes"},
+        {"file": "larkspur/compensation-bands.md", "title": "Compensation Bands 2026",
+         "access_level": "admins_only"}
+      ]
+    },
+    {
+      "slug": "fenwick",
+      "name": "Fenwick Dental Group",
+      "users": [
+        {"email": "admin@fenwick.example", "full_name": "Jordan Admin", "role": "tenant_admin"}
+      ],
+      "documents": [
+        {"file": "fenwick/patient-billing-policy.md", "title": "Patient Billing Policy"},
+        {"file": "fenwick/office-hours.txt", "title": "Office Hours"},
+        {"file": "fenwick/staff-handbook.md", "title": "Staff Handbook"}
+      ]
+    }
+  ]
+}
