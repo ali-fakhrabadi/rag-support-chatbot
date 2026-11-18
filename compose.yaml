@@ -102,7 +102,10 @@ services:
       redis: {condition: service_healthy}
 
   web:
-    build: {context: ./frontend}
+    build:
+      context: ./frontend
+      args:
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org/}
     image: rag-support-chatbot-web:${APP_VERSION:-dev}
     restart: unless-stopped
     ports: ["${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:8080"]
