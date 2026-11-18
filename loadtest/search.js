@@ -19,7 +19,8 @@ export const options = {
       duration: __ENV.DURATION || "60s",
     },
   },
-  thresholds: { http_req_failed: ["rate<0.01"] },
+  // The tagged threshold also makes k6 report the search requests without the setup login.
+  thresholds: { http_req_failed: ["rate<0.01"], "http_req_duration{name:search}": ["p(95)<5000"] },
   summaryTrendStats: ["min", "med", "avg", "p(90)", "p(95)", "p(99)", "max"],
 };
 

@@ -129,7 +129,96 @@ curl -s $BASE/api/v1/search -H "Authorization: Bearer $TOKEN" -H 'Content-Type: 
 curl -s $BASE/api/v1/chat -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"question":"What is the return window for Larkspur Club members?"}'
 ```
 
-CHAT_EXAMPLE
+```json
+{
+  "conversation_id": "57ebacda-e846-4428-ba19-d1de63131df5",
+  "answer": {
+    "id": "065a11d9-32cb-431e-938e-dccdddf20c9f",
+    "role": "assistant",
+    "content": "Larkspur Club members have a 60-day return window.",
+    "citations": [
+      {
+        "source_id": "S1",
+        "document_id": "2900b81b-d674-4c87-b989-c610c88281d1",
+        "document_title": "Larkspur Club Member Guide",
+        "chunk_id": "9a91ff46-b3d2-45b8-b513-4b47ab89716c",
+        "page": null,
+        "section": null,
+        "snippet": "discount on one order during the birthday month,\n- early access to seasonal sales.\n\nMember ...",
+        "similarity": 0.8725
+      },
+      {
+        "source_id": "S2",
+        "document_id": "2900b81b-d674-4c87-b989-c610c88281d1",
+        "document_title": "Larkspur Club Member Guide",
+        "chunk_id": "6437bfd8-dba5-463a-abbe-2fd0412f6f36",
+        "page": null,
+        "section": null,
+        "snippet": "LARKSPUR CLUB - MEMBER GUIDE\n\nJoining\nLarkspur Club is free to join online or in any store ...",
+        "similarity": 0.783
+      }
+    ],
+    "abstained": false,
+    "created_at": "2026-11-18T23:50:13.331104Z",
+    "meta": {
+      "retrieved": [
+        {
+          "source_id": "S1",
+          "chunk_id": "9a91ff46-b3d2-45b8-b513-4b47ab89716c",
+          "document_id": "2900b81b-d674-4c87-b989-c610c88281d1",
+          "similarity": 0.8725,
+          "vector_rank": 1,
+          "text_rank": 2,
+          "fused_score": 0.032522
+        },
+        {
+          "source_id": "S2",
+          "chunk_id": "6437bfd8-dba5-463a-abbe-2fd0412f6f36",
+          "document_id": "2900b81b-d674-4c87-b989-c610c88281d1",
+          "similarity": 0.783,
+          "vector_rank": 3,
+          "text_rank": 1,
+          "fused_score": 0.032266
+        }
+      ],
+      "candidates": 21,
+      "dropped_below_threshold": 0,
+      "timings_ms": {
+        "embed": 84,
+        "search": 8,
+        "llm": 66725
+      },
+      "quarantined_paragraphs": 0,
+      "model": "llama3.1:latest",
+      "dropped_citations": [],
+      "tokens": {
+        "prompt": 1168,
+        "completion": 44
+      },
+      "llm_detail_ms": {
+        "load_ms": 393,
+        "prompt_eval_ms": 58376,
+        "eval_ms": 7823
+      },
+      "abstain_reason": null,
+      "total_ms": 66822
+    }
+  },
+  "question": {
+    "id": "d371623b-c081-424c-a292-a79c87523420",
+    "role": "user",
+    "content": "What is the return window for Larkspur Club members?",
+    "citations": [],
+    "abstained": false,
+    "created_at": "2026-11-18T23:49:06.508569Z",
+    "meta": null
+  }
+}
+```
+
+(Snippets shortened; `meta.retrieved` lists all five passages sent to the model, two shown.
+The timings are from a CPU-only model host: most of `llm` is prompt evaluation, see
+`llm_detail_ms`.)
 
 Send `conversation_id` to continue a conversation. `GET /api/v1/conversations` and
 `GET /api/v1/conversations/{id}` return the user's own conversations; `GET

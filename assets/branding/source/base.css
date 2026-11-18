@@ -4,8 +4,8 @@
 @font-face { font-family: "JetBrains Mono"; src: url("fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
 
 :root {
-  --bg: #0d1117; --panel: #161b22; --line: #30363d; --soft: #21262d; --body: #c9d1d9;
-  --muted: #9da7b3; --dim: #6e7681; --green: #3fb950; --green2: #2ea043; --cyan: #38bdf8;
+  --bg: #0b1424; --panel: #111d33; --line: #2a3a56; --soft: #1a2944; --body: #c9d1d9;
+  --muted: #9fb0c9; --dim: #6f7f99; --green: #2dd4bf; --green2: #14b8a6; --cyan: #60a5fa;
   --teal: #2dd4bf;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,21 +14,21 @@ body { font-family: "Inter", sans-serif; color: #fff; position: relative; }
 .mono { font-family: "JetBrains Mono", monospace; }
 em { font-style: normal; color: var(--green); }
 .glow { position: absolute; inset: 0; background:
-  radial-gradient(900px 700px at 0% 100%, rgba(46, 160, 67, .28), transparent 70%),
-  radial-gradient(900px 700px at 100% 0%, rgba(56, 189, 248, .20), transparent 70%); }
-.dots { position: absolute; inset: 0; background-image: radial-gradient(#2a3444 1.6px, transparent 1.7px);
+  radial-gradient(900px 700px at 0% 100%, rgba(45, 212, 191, .16), transparent 70%),
+  radial-gradient(900px 700px at 100% 0%, rgba(96, 165, 250, .16), transparent 70%); }
+.dots { position: absolute; inset: 0; background-image: radial-gradient(#22324e 1.6px, transparent 1.7px);
   background-size: 44px 44px; opacity: .6;
   mask-image: radial-gradient(1100px 800px at 50% 40%, #000 10%, transparent 80%); }
 .top { display: flex; justify-content: space-between; align-items: center; }
 .brand { display: flex; align-items: center; gap: 16px; font-size: 26px; font-weight: 700; letter-spacing: .14em; }
-.brand i { width: 40px; height: 40px; border-radius: 11px; background: var(--green2); display: grid; place-items: center;
+.brand i { width: 40px; height: 40px; border-radius: 11px; background: #0f766e; display: grid; place-items: center;
   font-style: normal; font-size: 22px; letter-spacing: 0; }
 .brand span { color: var(--dim); font-weight: 500; letter-spacing: .08em; }
 .kind { font-size: 22px; letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); display: flex; align-items: center; gap: 14px; }
 .kind i { width: 11px; height: 11px; border-radius: 50%; background: var(--cyan); }
-.card { border-radius: 22px; background: rgba(22, 27, 34, .96); border: 2px solid var(--line); box-shadow: 0 20px 50px rgba(1, 4, 9, .55); }
+.card { border-radius: 22px; background: rgba(17, 29, 51, .96); border: 2px solid var(--line); box-shadow: 0 20px 50px rgba(1, 4, 9, .55); }
 .card.g { border-color: var(--green2); }
-.tag { font-size: 24px; font-weight: 600; padding: 11px 20px; border-radius: 12px; background: rgba(22, 27, 34, .96);
+.tag { font-size: 24px; font-weight: 600; padding: 11px 20px; border-radius: 12px; background: rgba(17, 29, 51, .96);
   border: 2px solid var(--line); color: var(--body); }
 .window { border-radius: 20px; overflow: hidden; border: 2px solid var(--line); background: var(--panel); box-shadow: -24px 30px 80px rgba(1, 4, 9, .7); }
 .window .tb { height: 46px; display: flex; align-items: center; gap: 10px; padding-left: 20px; border-bottom: 2px solid var(--soft); }

@@ -1,0 +1,649 @@
+{
+  "project": "rag-support-chatbot",
+  "kind": "independent reference project; synthetic documents; CPU-only lab machines",
+  "scoring": "deterministic must_include / must_not_include rules, no model-as-judge",
+  "runs": [
+    {
+      "name": "run1-baseline",
+      "file": "results-run1-baseline.json",
+      "note": "clean held-out baseline",
+      "started_at": "2026-11-18T18:31:26+00:00",
+      "finished_at": "2026-11-18T20:26:04+00:00",
+      "configuration": "llm=llama3.1:latest Q4_K_M via Ollama 0.12.9 on CPU lab machine B; embeddings=nomic-embed-text on lab machine A; top_k=5; candidates=20; min_similarity=0.54; chunk=1200/200; temperature=0 seed=7",
+      "metrics": {
+        "questions": 135,
+        "passed": 115,
+        "pass_rate": 0.8519,
+        "retrieval": {
+          "questions": 109,
+          "recall_at_5": 1.0,
+          "evidence_at_5": 0.9899
+        },
+        "answers": {
+          "expected_answers": 99,
+          "correct": 83,
+          "correctness": 0.8384
+        },
+        "citations": {
+          "answers_with_gold_docs": 101,
+          "citations": 112,
+          "citation_accuracy": 0.9821,
+          "answers_citing_evidence": 0.9897,
+          "invented_citations_dropped": 0
+        },
+        "abstention": {
+          "should_abstain": 26,
+          "correct_abstentions": 26,
+          "should_answer": 99,
+          "false_abstentions": 2,
+          "accuracy": 0.984,
+          "misleading_or_flexible_passed": "6/10"
+        },
+        "security": {
+          "injection_passed": "6/7",
+          "forbidden_strings_in_answers": 1,
+          "cross_tenant_citations": 0,
+          "member_citations_of_admin_only_docs": 0,
+          "citations_to_unknown_documents": 0
+        },
+        "latency_ms": {
+          "chat_end_to_end": {
+            "n": 135,
+            "p50": 50450,
+            "p95": 76315,
+            "mean": 50739,
+            "max": 98980
+          },
+          "chat_answered_by_llm": {
+            "n": 134,
+            "p50": 50450,
+            "p95": 76315,
+            "mean": 51114,
+            "max": 98980
+          },
+          "chat_abstained_before_llm": {
+            "n": 1,
+            "p50": 593,
+            "p95": 593,
+            "mean": 593,
+            "max": 593
+          },
+          "llm_generation": {
+            "n": 134,
+            "p50": 50324,
+            "p95": 76211,
+            "mean": 50943,
+            "max": 98837
+          },
+          "search_end_to_end": {
+            "n": 135,
+            "p50": 100,
+            "p95": 973,
+            "mean": 205,
+            "max": 1922
+          },
+          "query_embedding": {
+            "n": 135,
+            "p50": 59,
+            "p95": 148,
+            "mean": 120,
+            "max": 3345
+          },
+          "hybrid_search_sql": {
+            "n": 135,
+            "p50": 6,
+            "p95": 12,
+            "mean": 7,
+            "max": 13
+          }
+        },
+        "by_category": {
+          "answerable": {
+            "passed": 38,
+            "total": 47,
+            "rate": 0.8085
+          },
+          "injection": {
+            "passed": 6,
+            "total": 7,
+            "rate": 0.8571
+          },
+          "isolation": {
+            "passed": 8,
+            "total": 8,
+            "rate": 1.0
+          },
+          "misleading": {
+            "passed": 6,
+            "total": 9,
+            "rate": 0.6667
+          },
+          "multi_doc": {
+            "passed": 6,
+            "total": 9,
+            "rate": 0.6667
+          },
+          "numeric": {
+            "passed": 23,
+            "total": 24,
+            "rate": 0.9583
+          },
+          "permission": {
+            "passed": 5,
+            "total": 5,
+            "rate": 1.0
+          },
+          "similar_source": {
+            "passed": 7,
+            "total": 10,
+            "rate": 0.7
+          },
+          "unanswerable": {
+            "passed": 16,
+            "total": 16,
+            "rate": 1.0
+          }
+        }
+      },
+      "failed_question_ids": [
+        "T010",
+        "T012",
+        "T013",
+        "T025",
+        "T037",
+        "T044",
+        "T051",
+        "T056",
+        "T059",
+        "T067",
+        "M01",
+        "M05",
+        "M07",
+        "S03",
+        "S08",
+        "S09",
+        "L01",
+        "L08",
+        "L09",
+        "I05"
+      ]
+    },
+    {
+      "name": "run2",
+      "file": "results-run2.json",
+      "note": "after paragraph quarantine and a complete-answer rule (commit 2678928), changes informed by run 1 test failures; not a clean held-out measurement",
+      "started_at": "2026-11-18T21:42:08+00:00",
+      "finished_at": "2026-11-18T23:37:40+00:00",
+      "configuration": "run 2 (commit 2678928): paragraph quarantine + complete-answer rule; otherwise identical to run 1. llm=llama3.1:latest Q4_K_M via Ollama 0.12.9 on CPU lab machine B; embeddings=nomic-embed-text on lab machine A; top_k=5; candidates=20; min_similarity=0.54; chunk=1200/200; temperature=0 seed=7",
+      "metrics": {
+        "questions": 135,
+        "passed": 129,
+        "pass_rate": 0.9556,
+        "retrieval": {
+          "questions": 109,
+          "recall_at_5": 1.0,
+          "evidence_at_5": 0.9899
+        },
+        "answers": {
+          "expected_answers": 99,
+          "correct": 93,
+          "correctness": 0.9394
+        },
+        "citations": {
+          "answers_with_gold_docs": 100,
+          "citations": 111,
+          "citation_accuracy": 0.982,
+          "answers_citing_evidence": 0.9896,
+          "invented_citations_dropped": 0
+        },
+        "abstention": {
+          "should_abstain": 26,
+          "correct_abstentions": 26,
+          "should_answer": 99,
+          "false_abstentions": 3,
+          "accuracy": 0.976,
+          "misleading_or_flexible_passed": "10/10"
+        },
+        "security": {
+          "injection_passed": "7/7",
+          "forbidden_strings_in_answers": 0,
+          "cross_tenant_citations": 0,
+          "member_citations_of_admin_only_docs": 0,
+          "citations_to_unknown_documents": 0
+        },
+        "latency_ms": {
+          "chat_end_to_end": {
+            "n": 135,
+            "p50": 49739,
+            "p95": 75935,
+            "mean": 51168,
+            "max": 96056
+          },
+          "chat_answered_by_llm": {
+            "n": 134,
+            "p50": 49739,
+            "p95": 75935,
+            "mean": 51550,
+            "max": 96056
+          },
+          "chat_abstained_before_llm": {
+            "n": 1,
+            "p50": 94,
+            "p95": 94,
+            "mean": 94,
+            "max": 94
+          },
+          "llm_generation": {
+            "n": 134,
+            "p50": 49618,
+            "p95": 75787,
+            "mean": 51409,
+            "max": 95325
+          },
+          "search_end_to_end": {
+            "n": 135,
+            "p50": 94,
+            "p95": 600,
+            "mean": 170,
+            "max": 1831
+          },
+          "query_embedding": {
+            "n": 135,
+            "p50": 58,
+            "p95": 124,
+            "mean": 85,
+            "max": 1912
+          },
+          "hybrid_search_sql": {
+            "n": 135,
+            "p50": 6,
+            "p95": 10,
+            "mean": 6,
+            "max": 16
+          }
+        },
+        "by_category": {
+          "answerable": {
+            "passed": 44,
+            "total": 47,
+            "rate": 0.9362
+          },
+          "injection": {
+            "passed": 7,
+            "total": 7,
+            "rate": 1.0
+          },
+          "isolation": {
+            "passed": 8,
+            "total": 8,
+            "rate": 1.0
+          },
+          "misleading": {
+            "passed": 9,
+            "total": 9,
+            "rate": 1.0
+          },
+          "multi_doc": {
+            "passed": 7,
+            "total": 9,
+            "rate": 0.7778
+          },
+          "numeric": {
+            "passed": 24,
+            "total": 24,
+            "rate": 1.0
+          },
+          "permission": {
+            "passed": 5,
+            "total": 5,
+            "rate": 1.0
+          },
+          "similar_source": {
+            "passed": 9,
+            "total": 10,
+            "rate": 0.9
+          },
+          "unanswerable": {
+            "passed": 16,
+            "total": 16,
+            "rate": 1.0
+          }
+        }
+      },
+      "failed_question_ids": [
+        "T010",
+        "T012",
+        "T067",
+        "M05",
+        "M07",
+        "S09"
+      ]
+    }
+  ],
+  "calibration": {
+    "split": "dev",
+    "embedding_model": "nomic-embed-text",
+    "questions": 24,
+    "answerable_top_similarity": {
+      "min": 0.5641,
+      "max": 0.821
+    },
+    "unanswerable_top_similarity": {
+      "min": 0.6004,
+      "max": 0.7305
+    },
+    "separation": {
+      "best_accuracy": 0.75,
+      "best_range": [
+        0.74,
+        0.75
+      ],
+      "gate_at_best": {
+        "answerable_kept": 6,
+        "answerable_blocked": 6,
+        "unanswerable_blocked": 12,
+        "unanswerable_passed_to_llm": 0
+      }
+    },
+    "rule": "recall first: lowest answerable top similarity minus 0.02, floored to 0.01",
+    "chosen_threshold": 0.54,
+    "gate_at_chosen": {
+      "answerable_kept": 12,
+      "answerable_blocked": 0,
+      "unanswerable_blocked": 0,
+      "unanswerable_passed_to_llm": 12
+    },
+    "rows": [
+      {
+        "id": "D01",
+        "answerable": true,
+        "top_similarity": 0.5641
+      },
+      {
+        "id": "D02",
+        "answerable": true,
+        "top_similarity": 0.6175
+      },
+      {
+        "id": "D03",
+        "answerable": true,
+        "top_similarity": 0.6609
+      },
+      {
+        "id": "D04",
+        "answerable": true,
+        "top_similarity": 0.7576
+      },
+      {
+        "id": "D05",
+        "answerable": true,
+        "top_similarity": 0.7779
+      },
+      {
+        "id": "D06",
+        "answerable": true,
+        "top_similarity": 0.6804
+      },
+      {
+        "id": "D07",
+        "answerable": true,
+        "top_similarity": 0.821
+      },
+      {
+        "id": "D08",
+        "answerable": true,
+        "top_similarity": 0.8096
+      },
+      {
+        "id": "D09",
+        "answerable": true,
+        "top_similarity": 0.7775
+      },
+      {
+        "id": "D10",
+        "answerable": true,
+        "top_similarity": 0.6622
+      },
+      {
+        "id": "D11",
+        "answerable": true,
+        "top_similarity": 0.6792
+      },
+      {
+        "id": "D12",
+        "answerable": true,
+        "top_similarity": 0.7613
+      },
+      {
+        "id": "D13",
+        "answerable": false,
+        "top_similarity": 0.6898
+      },
+      {
+        "id": "D14",
+        "answerable": false,
+        "top_similarity": 0.6004
+      },
+      {
+        "id": "D15",
+        "answerable": false,
+        "top_similarity": 0.6154
+      },
+      {
+        "id": "D16",
+        "answerable": false,
+        "top_similarity": 0.7305
+      },
+      {
+        "id": "D17",
+        "answerable": false,
+        "top_similarity": 0.6838
+      },
+      {
+        "id": "D18",
+        "answerable": false,
+        "top_similarity": 0.6722
+      },
+      {
+        "id": "D19",
+        "answerable": false,
+        "top_similarity": 0.6409
+      },
+      {
+        "id": "D20",
+        "answerable": false,
+        "top_similarity": 0.6872
+      },
+      {
+        "id": "D21",
+        "answerable": false,
+        "top_similarity": 0.6821
+      },
+      {
+        "id": "D22",
+        "answerable": false,
+        "top_similarity": 0.6986
+      },
+      {
+        "id": "D23",
+        "answerable": false,
+        "top_similarity": 0.6251
+      },
+      {
+        "id": "D24",
+        "answerable": false,
+        "top_similarity": 0.7268
+      }
+    ]
+  },
+  "load_tests": {
+    "chat-summary": {
+      "http_req_duration": {
+        "med": 69297.334447,
+        "avg": 57981.28019657143,
+        "p(90)": 76778.29801079999,
+        "p(95)": 77580.4179879,
+        "max": 78382.537965,
+        "min": 101.303737
+      },
+      "http_reqs": {
+        "count": 7,
+        "rate": 0.0488835722778926
+      },
+      "http_req_failed": {
+        "fails": 7,
+        "passes": 0,
+        "value": 0
+      },
+      "iterations": {
+        "count": 6,
+        "rate": 0.04190020480962223
+      },
+      "checks": {
+        "passes": 13,
+        "fails": 0,
+        "value": 1
+      },
+      "vus_max": {
+        "value": 3,
+        "min": 3,
+        "max": 3
+      },
+      "http_req_duration{name:chat}": {
+        "avg": 67627.94293983335,
+        "p(90)": 77045.6713365,
+        "p(95)": 77714.10465075,
+        "max": 78382.537965,
+        "min": 49211.70853,
+        "med": 71540.59897250001,
+        "thresholds": {
+          "max>=0": false
+        }
+      },
+      "http_req_duration{expected_response:true}": {
+        "p(90)": 76778.29801079999,
+        "p(95)": 77580.4179879,
+        "max": 78382.537965,
+        "min": 101.303737,
+        "med": 69297.334447,
+        "avg": 57981.28019657143
+      }
+    },
+    "search-10vu-summary": {
+      "http_req_duration": {
+        "avg": 1075.4828248785711,
+        "p(90)": 1388.0587143,
+        "p(95)": 1454.71095845,
+        "p(99)": 3052.22062081,
+        "max": 3417.895191,
+        "min": 121.822331,
+        "med": 976.4301115000001
+      },
+      "http_reqs": {
+        "count": 560,
+        "rate": 9.251257632994855
+      },
+      "http_req_failed": {
+        "passes": 0,
+        "fails": 560,
+        "thresholds": {
+          "rate<0.01": false
+        },
+        "value": 0
+      },
+      "iterations": {
+        "count": 559,
+        "rate": 9.234737530078794
+      },
+      "checks": {
+        "fails": 0,
+        "passes": 1119,
+        "value": 1
+      },
+      "vus_max": {
+        "value": 10,
+        "min": 10,
+        "max": 10
+      },
+      "http_req_duration{name:search}": {
+        "p(90)": 1388.3048406,
+        "p(95)": 1454.7195348999999,
+        "p(99)": 3052.24108522,
+        "max": 3417.895191,
+        "min": 237.726414,
+        "med": 976.474627,
+        "avg": 1077.1888364955273,
+        "thresholds": {
+          "p(95)<5000": false
+        }
+      },
+      "http_req_duration{expected_response:true}": {
+        "min": 121.822331,
+        "med": 976.4301115000001,
+        "avg": 1075.4828248785711,
+        "p(90)": 1388.0587143,
+        "p(95)": 1454.71095845,
+        "p(99)": 3052.22062081,
+        "max": 3417.895191
+      }
+    },
+    "search-1vu-summary": {
+      "http_req_duration": {
+        "min": 74.105867,
+        "med": 92.1360525,
+        "avg": 112.22942370740738,
+        "p(90)": 118.76265509999998,
+        "p(95)": 138.40170169999996,
+        "p(99)": 449.3326097400004,
+        "max": 2503.921621
+      },
+      "http_reqs": {
+        "rate": 8.878627145260882,
+        "count": 270
+      },
+      "http_req_failed": {
+        "passes": 0,
+        "fails": 270,
+        "thresholds": {
+          "rate<0.01": false
+        },
+        "value": 0
+      },
+      "iterations": {
+        "count": 269,
+        "rate": 8.845743341019176
+      },
+      "checks": {
+        "passes": 539,
+        "fails": 0,
+        "value": 1
+      },
+      "vus_max": {
+        "value": 1,
+        "min": 1,
+        "max": 1
+      },
+      "http_req_duration{expected_response:true}": {
+        "min": 74.105867,
+        "med": 92.1360525,
+        "avg": 112.22942370740738,
+        "p(90)": 118.76265509999998,
+        "p(95)": 138.40170169999996,
+        "p(99)": 449.3326097400004,
+        "max": 2503.921621
+      },
+      "http_req_duration{name:search}": {
+        "p(95)": 137.010112,
+        "p(99)": 450.9696652799989,
+        "max": 2503.921621,
+        "min": 74.105867,
+        "med": 92.084909,
+        "avg": 111.22210310037174,
+        "p(90)": 117.78191980000001,
+        "thresholds": {
+          "p(95)<5000": false
+        }
+      }
+    }
+  }
+}

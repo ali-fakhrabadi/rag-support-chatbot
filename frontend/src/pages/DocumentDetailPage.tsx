@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router";
 import { api, ApiError, type Chunk, type DocumentItem, type Job } from "../api";
 import { useSession } from "../App";
 import { formatBytes, formatDate, StatusBadge } from "../components/StatusBadge";
+import { unwrapLines } from "../text";
 
 export function DocumentDetailPage() {
   const { documentId = "" } = useParams();
@@ -131,7 +132,7 @@ export function DocumentDetailPage() {
                   {c.page_number !== null && ` · page ${c.page_number}`}
                   {c.section && ` · ${c.section}`}
                 </div>
-                <p>{c.content}</p>
+                <p>{unwrapLines(c.content)}</p>
               </li>
             ))}
           </ol>

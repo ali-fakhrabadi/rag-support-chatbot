@@ -19,6 +19,8 @@ export const options = {
       maxDuration: "40m",
     },
   },
+  // Listed so k6 reports the chat requests on their own, without the setup login.
+  thresholds: { "http_req_duration{name:chat}": ["max>=0"] },
   summaryTrendStats: ["min", "med", "avg", "p(90)", "p(95)", "max"],
 };
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { api, ApiError, type Chunk, type Citation } from "../api";
+import { unwrapLines } from "../text";
 
 // Opens the exact stored passage a citation points to, fetched with the reader's own
 // permissions (so a citation can never reveal text the reader may not see).
@@ -62,7 +63,7 @@ export function PassageDrawer({ citation, onClose }: { citation: Citation; onClo
         )}
         {chunk && (
           <blockquote className="passage" data-testid="passage-text">
-            {chunk.content}
+            {unwrapLines(chunk.content)}
           </blockquote>
         )}
         <Link className="button secondary" to={`/documents/${citation.document_id}`}>

@@ -5,19 +5,23 @@
 <title>Architecture</title>
 <link rel="stylesheet" href="base.css">
 <style>
-  html, body { width: {{width}}px; height: {{height}}px; }
+  html, body { width: 1600px; height: 1200px; }
   .wrap { position: absolute; inset: 0; padding: 64px 80px 0; }
-  h1 { margin-top: 34px; font-size: 54px; font-weight: 800; letter-spacing: -.03em; }
-  .sub { margin-top: 10px; font-size: 24px; color: var(--muted); }
+  h1 { margin-top: 38px; font-size: 56px; font-weight: 800; letter-spacing: -.03em; }
+  .sub { margin-top: 10px; font-size: 25px; color: var(--muted); }
   svg { position: absolute; left: 0; top: 0; }
-  .box rect { fill: rgba(22, 27, 34, .97); stroke: #30363d; stroke-width: 2; }
-  .box.g rect { stroke: #2ea043; } .box.c rect { stroke: #38bdf8; } .box.t rect { stroke: #2dd4bf; }
-  .zone { fill: none; stroke: #30363d; stroke-width: 2; stroke-dasharray: 8 8; }
-  .zl { fill: #6e7681; font: 600 18px "JetBrains Mono"; letter-spacing: .08em; }
-  .bt { fill: #fff; font: 700 26px "Inter"; }
-  .bs { fill: #9da7b3; font: 400 19px "Inter"; }
-  .arrow { stroke: #6e7681; stroke-width: 3; fill: none; marker-end: url(#a); }
-  .al { fill: #9da7b3; font: 400 17px "JetBrains Mono"; }
+  .n rect { fill: rgba(17, 29, 51, .97); stroke: #2a3a56; stroke-width: 2; }
+  .n.b rect { stroke: #60a5fa; } .n.t rect { stroke: #2dd4bf; } .n.a rect { stroke: #2dd4bf; fill: rgba(15, 118, 110, .22); }
+  .nt { fill: #fff; font: 700 23px "Inter"; }
+  .ns { fill: #9fb0c9; font: 400 17.5px "Inter"; }
+  .lane { fill: #60a5fa; font: 700 19px "JetBrains Mono"; letter-spacing: .1em; }
+  .lane.t { fill: #2dd4bf; }
+  .arrow { stroke: #6f7f99; stroke-width: 3; fill: none; marker-end: url(#a); }
+  .arrow.both { marker-start: url(#a); }
+  .al { fill: #9fb0c9; font: 400 17px "JetBrains Mono"; }
+  .chip rect { fill: rgba(17, 29, 51, .9); stroke: #2a3a56; stroke-width: 2; }
+  .ct { fill: #c9d1d9; font: 500 20px "Inter"; }
+  .ck { fill: #2dd4bf; font: 700 22px "Inter"; }
 </style>
 </head>
 <body>
@@ -25,32 +29,40 @@
 <div class="wrap">
   <div class="top"><div class="brand"><i>A</i>ALI F. <span>Secure RAG Knowledge Assistant</span></div>
     <div class="kind mono"><i></i>Architecture</div></div>
-  <h1>Docker Compose, one host, models over HTTP</h1>
-  <p class="sub">Data services have no published ports. Every container runs as non-root with a read-only filesystem.</p>
+  <h1>From uploaded file to cited answer</h1>
+  <p class="sub">Two paths share one PostgreSQL database. Every step runs inside the caller's workspace.</p>
 </div>
-<svg width="{{width}}" height="{{height}}" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet">
-  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6e7681"/></marker></defs>
-  <rect class="zone" x="330" y="330" width="1240" height="420" rx="18"/><text class="zl" x="350" y="362">egress network</text>
-  <rect class="zone" x="330" y="790" width="760" height="330" rx="18"/><text class="zl" x="350" y="822">data network (internal)</text>
-  <rect class="zone" x="1130" y="790" width="440" height="330" rx="18"/><text class="zl" x="1150" y="822">model host(s)</text>
+<svg width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6f7f99"/></marker></defs>
 
-  <g class="box"><rect x="40" y="470" width="250" height="140" rx="16"/><text class="bt" x="66" y="530">Browser</text><text class="bs" x="66" y="565">React + TypeScript</text></g>
-  <g class="box t"><rect x="370" y="400" width="300" height="160" rx="16"/><text class="bt" x="396" y="456">web · nginx</text><text class="bs" x="396" y="490">SPA, strict CSP</text><text class="bs" x="396" y="520">/api proxy</text></g>
-  <g class="box g"><rect x="760" y="400" width="340" height="160" rx="16"/><text class="bt" x="786" y="456">api · FastAPI</text><text class="bs" x="786" y="490">auth, RBAC, retrieval,</text><text class="bs" x="786" y="520">grounded answers</text></g>
-  <g class="box g"><rect x="760" y="590" width="340" height="140" rx="16"/><text class="bt" x="786" y="646">worker · Celery</text><text class="bs" x="786" y="680">extract, chunk, embed</text></g>
-  <g class="box c"><rect x="370" y="860" width="380" height="220" rx="16"/><text class="bt" x="396" y="916">PostgreSQL 17</text><text class="bs" x="396" y="950">pgvector HNSW + full-text</text><text class="bs" x="396" y="980">forced row-level security</text><text class="bs" x="396" y="1010">audit log (append-only)</text></g>
-  <g class="box c"><rect x="790" y="860" width="260" height="220" rx="16"/><text class="bt" x="816" y="916">Redis</text><text class="bs" x="816" y="950">job queue</text><text class="bs" x="816" y="980">rate limits</text></g>
-  <g class="box"><rect x="1170" y="860" width="360" height="100" rx="16"/><text class="bt" x="1196" y="904">Ollama</text><text class="bs" x="1196" y="936">nomic-embed-text</text></g>
-  <g class="box"><rect x="1170" y="980" width="360" height="110" rx="16"/><text class="bt" x="1196" y="1024">Ollama or OpenAI</text><text class="bs" x="1196" y="1058">llama3.1 8B (default)</text></g>
+  <text class="lane" x="80" y="330">1 · DOCUMENT INGESTION (BACKGROUND WORKER)</text>
+  <g class="n"><rect x="80" y="350" width="200" height="130" rx="14"/><text class="nt" x="100" y="392">Upload</text><text class="ns" x="100" y="424">admin only,</text><text class="ns" x="100" y="450">PDF · TXT · MD</text></g>
+  <g class="n"><rect x="332" y="350" width="200" height="130" rx="14"/><text class="nt" x="352" y="392">Validate</text><text class="ns" x="352" y="424">type, size,</text><text class="ns" x="352" y="450">file signature</text></g>
+  <g class="n"><rect x="584" y="350" width="200" height="130" rx="14"/><text class="nt" x="604" y="392">Queue</text><text class="ns" x="604" y="424">Celery + Redis,</text><text class="ns" x="604" y="450">retries</text></g>
+  <g class="n"><rect x="836" y="350" width="200" height="130" rx="14"/><text class="nt" x="856" y="392">Extract</text><text class="ns" x="856" y="424">PDF pages,</text><text class="ns" x="856" y="450">Markdown sections</text></g>
+  <g class="n"><rect x="1088" y="350" width="200" height="130" rx="14"/><text class="nt" x="1108" y="392">Chunk</text><text class="ns" x="1108" y="424">never across a</text><text class="ns" x="1108" y="450">page or section</text></g>
+  <g class="n t"><rect x="1340" y="350" width="200" height="130" rx="14"/><text class="nt" x="1360" y="392">Embed</text><text class="ns" x="1360" y="424">nomic-embed-text</text><text class="ns" x="1360" y="450">via Ollama</text></g>
+  <path class="arrow" d="M280 415 L328 415"/><path class="arrow" d="M532 415 L580 415"/><path class="arrow" d="M784 415 L832 415"/>
+  <path class="arrow" d="M1036 415 L1084 415"/><path class="arrow" d="M1288 415 L1336 415"/>
+  <path class="arrow" d="M1440 480 L1440 560 L926 560 L926 652"/>
+  <text class="al" x="960" y="548">store chunks, vectors, page/section</text>
 
-  <path class="arrow" d="M290 540 L366 500"/><text class="al" x="292" y="500">HTTPS</text>
-  <path class="arrow" d="M670 480 L756 480"/>
-  <path class="arrow" d="M930 560 L930 586"/><text class="al" x="944" y="580">enqueue</text>
-  <path class="arrow" d="M840 730 L640 856"/>
-  <path class="arrow" d="M900 730 L900 856"/>
-  <path class="arrow" d="M1100 470 L1300 470 L1300 856"/><text class="al" x="1120" y="455">query embedding</text>
-  <path class="arrow" d="M1100 520 L1250 520 L1250 976"/><text class="al" x="1110" y="545">answer (JSON)</text>
-  <path class="arrow" d="M1100 690 L1210 690 L1210 856"/><text class="al" x="1110" y="715">passages</text>
+  <text class="lane t" x="80" y="630">2 · QUESTION TO ANSWER</text>
+  <g class="n"><rect x="80" y="660" width="190" height="150" rx="14"/><text class="nt" x="98" y="702">User</text><text class="ns" x="98" y="734">asks in the</text><text class="ns" x="98" y="760">web app</text></g>
+  <g class="n"><rect x="291" y="660" width="190" height="150" rx="14"/><text class="nt" x="309" y="702">API</text><text class="ns" x="309" y="734">FastAPI,</text><text class="ns" x="309" y="760">rate limits</text></g>
+  <g class="n"><rect x="502" y="660" width="190" height="150" rx="14"/><text class="nt" x="520" y="702">AuthN / AuthZ</text><text class="ns" x="520" y="734">token, role,</text><text class="ns" x="520" y="760">workspace</text></g>
+  <g class="n"><rect x="713" y="660" width="190" height="150" rx="14"/><text class="nt" x="731" y="702">Retrieval</text><text class="ns" x="731" y="734">vector + keyword,</text><text class="ns" x="731" y="760">rank fusion, gate</text></g>
+  <g class="n b"><rect x="924" y="660" width="190" height="150" rx="14"/><text class="nt" x="942" y="702">PostgreSQL</text><text class="ns" x="942" y="734">pgvector + FTS,</text><text class="ns" x="942" y="760">row-level security</text></g>
+  <g class="n t"><rect x="1135" y="660" width="190" height="150" rx="14"/><text class="nt" x="1153" y="702">LLM</text><text class="ns" x="1153" y="734">Ollama or OpenAI,</text><text class="ns" x="1153" y="760">fenced sources</text></g>
+  <g class="n a"><rect x="1346" y="660" width="194" height="150" rx="14"/><text class="nt" x="1364" y="702">Answer</text><text class="ns" x="1364" y="734">citations checked,</text><text class="ns" x="1364" y="760">or "no support"</text></g>
+  <path class="arrow" d="M270 735 L287 735"/><path class="arrow" d="M481 735 L498 735"/><path class="arrow" d="M692 735 L709 735"/>
+  <path class="arrow both" d="M903 735 L920 735"/><path class="arrow" d="M1114 735 L1131 735"/><path class="arrow" d="M1325 735 L1342 735"/>
+
+  <g class="chip"><rect x="80" y="880" width="700" height="90" rx="14"/><text class="ck" x="104" y="934">✓</text><text class="ct" x="140" y="934">Workspace, role and access filters inside the SQL</text></g>
+  <g class="chip"><rect x="820" y="880" width="720" height="90" rx="14"/><text class="ck" x="844" y="934">✓</text><text class="ct" x="880" y="934">Instruction-like paragraphs quarantined before the LLM</text></g>
+  <g class="chip"><rect x="80" y="990" width="700" height="90" rx="14"/><text class="ck" x="104" y="1044">✓</text><text class="ct" x="140" y="1044">Citations must name a passage that was actually sent</text></g>
+  <g class="chip"><rect x="820" y="990" width="720" height="90" rx="14"/><text class="ck" x="844" y="1044">✓</text><text class="ct" x="880" y="1044">No passage above the gate: abstains without calling the LLM</text></g>
+  <text class="al" x="80" y="1140">Docker Compose · nginx · api · worker · PostgreSQL 17 · Redis 7 · Ollama (optional profile)</text>
 </svg>
 </body>
 </html>
