@@ -1,0 +1,174 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  POSTGRES_IMAGE: pgvector/pgvector:0.8.7-pg17-bookworm@sha256:b513c48566e4777cd3370451400000c78eda6a08131d68f4c31d4a76f27bd8fd
+  TRIVY_IMAGE: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+  GITLEAKS_IMAGE: zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+
+jobs:
+  backend:
+    name: Backend - lint, types, unit and integration tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17-bookworm@sha256:b513c48566e4777cd3370451400000c78eda6a08131d68f4c31d4a76f27bd8fd
+        env:
+          POSTGRES_USER: rag_owner
+          POSTGRES_DB: rag
+          # Throwaway credentials for a database that only exists during this job.
+          POSTGRES_PASSWORD: ci-owner-${{ github.run_id }}
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rag_owner -d rag" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7.4.11-alpine@sha256:57e4255cc971b1c8d6f8a6ca283ac01bc3ecdd914273ef6bfaede87aaecd6541
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s
+          --health-retries 20
+    env:
+      RAG_DB_HOST: 127.0.0.1
+      RAG_DB_ADMIN_USER: rag_owner
+      RAG_DB_ADMIN_PASSWORD: ci-owner-${{ github.run_id }}
+      RAG_DB_PASSWORD: ci-app-${{ github.run_id }}
+      RAG_REDIS_URL: redis://127.0.0.1:6379/1
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - name: Install locked dependencies (hash-checked)
+        run: python -m pip install --require-hashes -r requirements.txt -r requirements-dev.txt
+      - name: Lint and format (backend, evals, e2e, scripts)
+        working-directory: .
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Type check
+        run: mypy app
+      - name: Unit and integration tests (real PostgreSQL + pgvector and Redis)
+        run: pytest --cov=app --cov-report=term --cov-fail-under=90
+      - name: Dependency vulnerability audit
+        run: pip-audit --strict --disable-pip --require-hashes -r requirements.txt
+      - name: Evaluation set is well formed
+        working-directory: .
+        run: |
+          python - <<'EOF'
+          import json
+          rows = [json.loads(l) for l in open("evals/questions.jsonl", encoding="utf-8") if l.strip()]
+          ids = [r["id"] for r in rows]
+          assert len(ids) == len(set(ids)), "duplicate question ids"
+          test = [r for r in rows if r["split"] == "test"]
+          assert len(test) >= 100, len(test)
+          print(f"{len(rows)} questions, {len(test)} in the test split")
+          EOF
+
+  frontend:
+    name: Frontend - types, tests, build, audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run build
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks (full history)
+        run: |
+          docker run --rm -v "$PWD:/repo" \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0=/repo \
+            "$GITLEAKS_IMAGE" git /repo --redact --no-banner --exit-code 1
+
+  stack:
+    name: Containers - build, scan, compose stack, browser tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    needs: [backend, frontend]
+    env:
+      COMPOSE_PROJECT_NAME: rag-support-chatbot
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure a throwaway deployment
+        run: |
+          scripts/init-secrets.sh
+          cp .env.example .env
+          # No model server in CI: deterministic hashing embeddings. Answers need a model and
+          # are covered by the model-backed tests that run on real hardware.
+          echo "RAG_EMBEDDING_PROVIDER=hashing" >> .env
+          docker compose config --quiet
+      - name: Build images
+        run: docker compose build
+      - name: Scan images for known vulnerabilities (fixed HIGH/CRITICAL fail the build)
+        run: |
+          for image in rag-support-chatbot-backend:dev rag-support-chatbot-web:dev; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image \
+              --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+              --no-progress "$image"
+          done
+      - name: Start the stack
+        run: |
+          docker compose up -d
+          for _ in $(seq 60); do
+            curl -fsS http://127.0.0.1:8080/api/ready && exit 0
+            sleep 5
+          done
+          docker compose ps
+          exit 1
+      - name: Seed the evaluation workspaces and a demo workspace
+        run: |
+          evals/seed.sh
+          openssl rand -base64 24 | tr -d '\n' > secrets/demo_password
+          docker compose exec -T -e RAG_CLI_PASSWORD="$(cat secrets/demo_password)" api \
+            python -m app.cli create-workspace --slug demo --name "Demo Workspace" \
+            --admin-email admin@demo.example --full-name "Demo Admin" </dev/null
+      - name: Browser tests (no models)
+        run: e2e/run.sh -m "not models"
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --tail 200

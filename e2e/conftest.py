@@ -50,7 +50,9 @@ def new_page(browser: Browser) -> Iterator[Callable[..., Page]]:
 
     def make(width: int = 1440, height: int = 900) -> Page:
         context = browser.new_context(
-            base_url=BASE_URL, viewport={"width": width, "height": height}, locale="en-US",
+            base_url=BASE_URL,
+            viewport={"width": width, "height": height},
+            locale="en-US",
             timezone_id="UTC",
         )
         contexts.append(context)
@@ -74,7 +76,9 @@ def sign_in(page: Page, account: str) -> None:
         page.get_by_label("Password").fill(_secret(secret))
         page.get_by_label("Workspace").fill(workspace)
         page.get_by_role("button", name="Sign in").click()
-        page.locator("h1:text-is('Ask your documents'), [role=alert]").first.wait_for(timeout=20_000)
+        page.locator("h1:text-is('Ask your documents'), [role=alert]").first.wait_for(
+            timeout=20_000
+        )
         if page.get_by_role("heading", name="Ask your documents").count():
             return
         message = page.get_by_role("alert").inner_text()

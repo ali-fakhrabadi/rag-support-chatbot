@@ -26,7 +26,13 @@ from app.providers.embeddings import EmbeddingProvider
 from app.providers.errors import ProviderError
 from app.providers.llm import ChatTurn, LLMProvider
 from app.rag.citations import ABSTAIN_MESSAGE, validate_answer
-from app.rag.prompt import ANSWER_SCHEMA, SYSTEM_PROMPT, SourcePassage, build_user_prompt
+from app.rag.prompt import (
+    ANSWER_SCHEMA,
+    SYSTEM_PROMPT,
+    SourcePassage,
+    build_user_prompt,
+    quarantine,
+)
 from app.services.retrieval import RetrievedChunk, retrieve
 
 log = logging.getLogger("rag.chat")
@@ -170,10 +176,11 @@ def ask(
     if not sources:
         meta["model"] = None
     else:
-        passages = [
-            SourcePassage(sid, c.document_title, c.page, c.section, c.content)
-            for sid, c in sources.items()
-        ]
+        passages = []
+        for sid, c in sources.items():
+            text, removed = quarantine(c.content)
+            passages.append(SourcePassage(sid, c.document_title, c.page, c.section, text, removed))
+        meta["quarantined_paragraphs"] = sum(p.quarantined for p in passages)
         messages = [
             ChatTurn("system", SYSTEM_PROMPT),
             *history,

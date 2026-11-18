@@ -136,6 +136,7 @@ def evaluate(
         "tokens": meta.get("tokens"),
         "model": meta.get("model"),
         "dropped_citations": meta.get("dropped_citations") or [],
+        "quarantined_paragraphs": meta.get("quarantined_paragraphs", 0),
     }
     if gold:
         top_files = {r["file"] for r in retrieved}

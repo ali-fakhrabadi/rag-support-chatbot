@@ -10,6 +10,9 @@ ABSTAIN_MESSAGE = (
     "I couldn't find this in the documents you have access to, so I can't answer it reliably."
 )
 _MARKER = re.compile(r"\[\s*(S\d+(?:\s*,\s*S\d+)*)\s*\]")
+# Models sometimes echo the source fences ("according to <<<SOURCE S1>>>"); they become markers.
+_FENCE = re.compile(r"<<<\s*(?:SOURCE|END)\s+(S\d+)\s*>>>")
+_REPEATED = re.compile(r"(\[S\d+\])(?:\s*\1)+")
 
 
 @dataclass(frozen=True)
@@ -41,7 +44,7 @@ def validate_answer(data: dict[str, Any], allowed_ids: set[str]) -> ValidatedAns
     if not isinstance(raw_citations, list):
         raw_citations = []
 
-    answer = answer.strip()
+    answer = _REPEATED.sub(r"\1", _FENCE.sub(r"[\1]", answer)).strip()
     if insufficient or not answer:
         return ValidatedAnswer(ABSTAIN_MESSAGE, [], True, "model_insufficient_evidence", [])
 

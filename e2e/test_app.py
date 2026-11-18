@@ -67,7 +67,9 @@ def test_member_api_calls_for_admin_actions_are_refused() -> None:
     assert member.get(f"/api/v1/documents/{restricted['id']}")[0] == 404
     assert member.get("/api/v1/tenants/current/members")[0] == 403
     assert member.get("/api/v1/tenants/current/audit-events")[0] == 403
-    assert Api.request("DELETE", f"/api/v1/documents/{restricted['id']}", token=member.token)[0] == 403
+    assert (
+        Api.request("DELETE", f"/api/v1/documents/{restricted['id']}", token=member.token)[0] == 403
+    )
 
 
 # --- documents and ingestion --------------------------------------------------------------------
@@ -78,7 +80,9 @@ def test_document_details_show_ingestion_facts_and_passages(new_page: NewPage) -
     page.get_by_role("link", name="Larkspur Gear Warranty").click()
     expect(page.get_by_role("heading", name="Larkspur Gear Warranty")).to_be_visible()
     expect(page.get_by_text("3 pages", exact=False)).to_be_visible()
-    expect(page.get_by_role("heading", name=re.compile(r"^Extracted passages \(\d+\)$"))).to_be_visible()
+    expect(
+        page.get_by_role("heading", name=re.compile(r"^Extracted passages \(\d+\)$"))
+    ).to_be_visible()
     expect(page.get_by_text("nomic-embed-text")).to_be_visible()
     screenshot(page, "03-document-detail")
 
@@ -111,7 +115,9 @@ def test_upload_is_indexed_then_deleted(new_page: NewPage, tmp_path: Path) -> No
     expect(page.get_by_role("row").filter(has_text=source.name)).to_have_count(0)
 
 
-def test_unsupported_files_are_rejected_with_a_clear_message(new_page: NewPage, tmp_path: Path) -> None:
+def test_unsupported_files_are_rejected_with_a_clear_message(
+    new_page: NewPage, tmp_path: Path
+) -> None:
     page = new_page()
     sign_in(page, "demo_admin")
     page.goto("/documents")
@@ -132,7 +138,9 @@ def test_workspaces_cannot_see_each_others_documents(new_page: NewPage) -> None:
     for doc in lark_docs["items"]:
         assert fenwick.get(f"/api/v1/documents/{doc['id']}")[0] == 404
         assert fenwick.get(f"/api/v1/documents/{doc['id']}/chunks")[0] == 404
-    _, hits = fenwick.post("/api/v1/search", {"query": "Larkspur Club points per dollar", "top_k": 5})
+    _, hits = fenwick.post(
+        "/api/v1/search", {"query": "Larkspur Club points per dollar", "top_k": 5}
+    )
     fenwick_ids = {d["id"] for d in fen_docs["items"]}
     assert all(h["document_id"] in fenwick_ids for h in hits["hits"])
 
@@ -172,7 +180,9 @@ def test_member_gets_a_cited_answer_and_opens_the_source(new_page: NewPage) -> N
     screenshot(page, "06-source-passage")
     page.keyboard.press("Escape")
     expect(page.get_by_role("dialog")).to_have_count(0)
-    expect(page.get_by_role("link", name="How many days do I have to return an item?")).to_be_visible()
+    expect(
+        page.get_by_role("link", name="How many days do I have to return an item?")
+    ).to_be_visible()
 
 
 @pytest.mark.models

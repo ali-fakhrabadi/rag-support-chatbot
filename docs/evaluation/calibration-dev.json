@@ -1,0 +1,156 @@
+{
+  "split": "dev",
+  "embedding_model": "nomic-embed-text",
+  "questions": 24,
+  "answerable_top_similarity": {
+    "min": 0.5641,
+    "max": 0.821
+  },
+  "unanswerable_top_similarity": {
+    "min": 0.6004,
+    "max": 0.7305
+  },
+  "separation": {
+    "best_accuracy": 0.75,
+    "best_range": [
+      0.74,
+      0.75
+    ],
+    "gate_at_best": {
+      "answerable_kept": 6,
+      "answerable_blocked": 6,
+      "unanswerable_blocked": 12,
+      "unanswerable_passed_to_llm": 0
+    }
+  },
+  "rule": "recall first: lowest answerable top similarity minus 0.02, floored to 0.01",
+  "chosen_threshold": 0.54,
+  "gate_at_chosen": {
+    "answerable_kept": 12,
+    "answerable_blocked": 0,
+    "unanswerable_blocked": 0,
+    "unanswerable_passed_to_llm": 12
+  },
+  "rows": [
+    {
+      "id": "D01",
+      "answerable": true,
+      "top_similarity": 0.5641
+    },
+    {
+      "id": "D02",
+      "answerable": true,
+      "top_similarity": 0.6175
+    },
+    {
+      "id": "D03",
+      "answerable": true,
+      "top_similarity": 0.6609
+    },
+    {
+      "id": "D04",
+      "answerable": true,
+      "top_similarity": 0.7576
+    },
+    {
+      "id": "D05",
+      "answerable": true,
+      "top_similarity": 0.7779
+    },
+    {
+      "id": "D06",
+      "answerable": true,
+      "top_similarity": 0.6804
+    },
+    {
+      "id": "D07",
+      "answerable": true,
+      "top_similarity": 0.821
+    },
+    {
+      "id": "D08",
+      "answerable": true,
+      "top_similarity": 0.8096
+    },
+    {
+      "id": "D09",
+      "answerable": true,
+      "top_similarity": 0.7775
+    },
+    {
+      "id": "D10",
+      "answerable": true,
+      "top_similarity": 0.6622
+    },
+    {
+      "id": "D11",
+      "answerable": true,
+      "top_similarity": 0.6792
+    },
+    {
+      "id": "D12",
+      "answerable": true,
+      "top_similarity": 0.7613
+    },
+    {
+      "id": "D13",
+      "answerable": false,
+      "top_similarity": 0.6898
+    },
+    {
+      "id": "D14",
+      "answerable": false,
+      "top_similarity": 0.6004
+    },
+    {
+      "id": "D15",
+      "answerable": false,
+      "top_similarity": 0.6154
+    },
+    {
+      "id": "D16",
+      "answerable": false,
+      "top_similarity": 0.7305
+    },
+    {
+      "id": "D17",
+      "answerable": false,
+      "top_similarity": 0.6838
+    },
+    {
+      "id": "D18",
+      "answerable": false,
+      "top_similarity": 0.6722
+    },
+    {
+      "id": "D19",
+      "answerable": false,
+      "top_similarity": 0.6409
+    },
+    {
+      "id": "D20",
+      "answerable": false,
+      "top_similarity": 0.6872
+    },
+    {
+      "id": "D21",
+      "answerable": false,
+      "top_similarity": 0.6821
+    },
+    {
+      "id": "D22",
+      "answerable": false,
+      "top_similarity": 0.6986
+    },
+    {
+      "id": "D23",
+      "answerable": false,
+      "top_similarity": 0.6251
+    },
+    {
+      "id": "D24",
+      "answerable": false,
+      "top_similarity": 0.7268
+    }
+  ]
+}
