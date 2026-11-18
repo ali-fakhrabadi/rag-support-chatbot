@@ -83,7 +83,10 @@ def test_document_details_show_ingestion_facts_and_passages(new_page: NewPage) -
     expect(
         page.get_by_role("heading", name=re.compile(r"^Extracted passages \(\d+\)$"))
     ).to_be_visible()
-    expect(page.get_by_text("nomic-embed-text")).to_be_visible()
+    # The model name depends on the deployment (nomic-embed-text, or hashing-v1 in CI).
+    model = page.locator("dt:text-is('Embedding model') + dd")
+    expect(model).to_have_text(re.compile(r"\S+"))
+    expect(model).not_to_have_text("—")
     screenshot(page, "03-document-detail")
 
 
