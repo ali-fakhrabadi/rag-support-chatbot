@@ -1,0 +1,5 @@
+# Reviewed false positives (exact fingerprints, so any new finding still fails the scan).
+#
+# A made-up JWT used as input to the log-redaction test: header {"alg":"HS256"}, payload
+# {"sub":"12345678"}, signature bytes "signature-value". It was never a credential.
+603678e6465211cbb35748379291f65f15f4998a:backend/tests/unit/test_security.py:jwt:150
