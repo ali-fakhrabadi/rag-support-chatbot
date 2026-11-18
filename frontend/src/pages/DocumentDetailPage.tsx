@@ -90,7 +90,7 @@ export function DocumentDetailPage() {
               <dl className="facts">
                 <dt>Status</dt>
                 <dd>
-                  <StatusBadge status={job.status} /> {job.stage}
+                  <StatusBadge status={job.status} /> {job.status !== "succeeded" && job.stage}
                 </dd>
                 <dt>Attempts</dt>
                 <dd>{job.attempts}</dd>

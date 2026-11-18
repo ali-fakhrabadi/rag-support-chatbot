@@ -60,7 +60,9 @@ export function LoginPage() {
             />
           </label>
           <label>
-            Workspace <span className="muted">(only needed if you belong to several)</span>
+            <span>
+              Workspace <span className="muted">(only needed if you belong to several)</span>
+            </span>
             <input value={workspace} onChange={(e) => setWorkspace(e.target.value)} />
           </label>
           {error && (

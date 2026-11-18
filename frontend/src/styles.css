@@ -20,7 +20,7 @@
   --radius: 10px;
   --shadow: 0 1px 2px rgb(15 23 42 / 6%), 0 4px 16px rgb(15 23 42 / 5%);
   font-family:
-    Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Inter Variable", Inter, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
   line-height: 1.55;
   color: var(--text);
@@ -41,6 +41,8 @@ h1,
 h2 {
   line-height: 1.25;
   margin: 0 0 0.4rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 h1 {
@@ -138,6 +140,7 @@ button:disabled {
 }
 
 .link-button {
+  justify-content: flex-start;
   padding: 0.3rem 0;
   color: #c7d2e5;
   font-weight: 500;

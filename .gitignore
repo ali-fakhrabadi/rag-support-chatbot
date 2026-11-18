@@ -24,6 +24,7 @@ frontend/playwright-report/
 
 # evaluation scratch output (committed results live in docs/evaluation)
 evals/out/
+e2e/out/
 
 # editors and OS
 .vscode/
