@@ -2,6 +2,7 @@
 
     python -m app.cli create-workspace --slug acme --name "Acme" --admin-email a@acme.example
     python -m app.cli add-user --workspace acme --email b@acme.example --role member
+    python -m app.cli set-password --email b@acme.example  # reset; signs the user out everywhere
     python -m app.cli reindex --workspace acme      # re-embed all chunks with the current model
 
 Passwords are read from RAG_CLI_PASSWORD or prompted for; they are never accepted as arguments.
@@ -48,6 +49,13 @@ def add_user(args: argparse.Namespace) -> None:
     print(f"{args.email} added to {args.workspace} as {args.role}")
 
 
+def set_password(args: argparse.Namespace) -> None:
+    password = _password()
+    with session_scope() as db:
+        tenants.set_password(db, args.email, password)
+    print(f"password of {args.email} changed; existing sessions revoked")
+
+
 def reindex(args: argparse.Namespace) -> None:
     settings = get_settings()
     embedder = get_embedding_provider(settings)
@@ -90,6 +98,9 @@ def main() -> None:
     p.add_argument("--full-name")
     p.add_argument("--role", choices=[r.value for r in Role], default=Role.MEMBER.value)
     p.set_defaults(func=add_user)
+    p = sub.add_parser("set-password")
+    p.add_argument("--email", required=True)
+    p.set_defaults(func=set_password)
     p = sub.add_parser("reindex")
     p.add_argument("--workspace", required=True)
     p.set_defaults(func=reindex)

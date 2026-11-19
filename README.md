@@ -118,7 +118,7 @@ All screenshots are taken by the browser tests against the running stack with th
 | Suite | What | Count |
 |---|---|---|
 | Backend unit | extraction, chunking, model providers, retrieval fusion, prompts, quarantine, citations, passwords, tokens, settings | 90 |
-| Backend integration | API and database against real PostgreSQL + pgvector and Redis: roles, row-level security, isolation, ingestion, chat | 35 |
+| Backend integration | API and database against real PostgreSQL + pgvector and Redis: roles, row-level security, isolation, ingestion, chat, operator CLI | 37 |
 | Frontend | Vitest + Testing Library: sign-in, documents and upload, chat with citations and the passage drawer, passage text formatting | 26 |
 | Browser (Playwright) | the running stack, two workspaces; 4 of them use the real models | 13 |
 | Evaluation | labeled questions (dev 24, test 135) | 159 |

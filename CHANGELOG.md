@@ -12,7 +12,8 @@ First public version.
 
 - FastAPI service with versioned REST API (`/api/v1`) and OpenAPI docs: authentication with
   Argon2id passwords, 15-minute access tokens and rotating refresh tokens with reuse detection;
-  workspaces with Tenant Admin and Member roles; member management; audit log.
+  workspaces with Tenant Admin and Member roles; member management; audit log; operator CLI
+  (create workspace, add user, reset password with session revocation, re-index).
 - PostgreSQL 17 + pgvector data model with forced Row-Level Security on every tenant-owned table
   and a non-owner application role; Alembic migrations.
 - Ingestion of PDF, TXT and Markdown through a Celery worker: validation, page- and

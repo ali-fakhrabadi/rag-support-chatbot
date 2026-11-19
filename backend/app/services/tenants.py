@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import re
 import uuid
+from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.core.deps import Principal
 from app.core.errors import AppError, Conflict, NotFound
 from app.core.passwords import hash_password, validate_password_strength
-from app.db.models import Membership, Role, Tenant, User
+from app.db.models import Membership, RefreshToken, Role, Tenant, User
 from app.db.session import bind_tenant
 from app.services import audit
 
@@ -43,6 +44,22 @@ def upsert_user(db: Session, email: str, password: str, full_name: str = "") -> 
         )
         db.add(user)
         db.flush()
+    return user
+
+
+def set_password(db: Session, email: str, password: str) -> User:
+    """Operator reset: replace the password and revoke every refresh token of the user."""
+    user = db.scalar(select(User).where(User.email == email.strip().lower()))
+    if user is None:
+        raise NotFound("Unknown user")
+    validate_password_strength(password)
+    user.password_hash = hash_password(password)
+    db.execute(
+        update(RefreshToken)
+        .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
+        .values(revoked_at=datetime.now(UTC))
+    )
+    db.flush()
     return user
 
 

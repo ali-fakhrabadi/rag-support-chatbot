@@ -58,6 +58,12 @@ Open `http://127.0.0.1:8080`, sign in, upload documents on the Documents page an
 Admins add members on the API (`POST /api/v1/tenants/current/members`) or with
 `python -m app.cli add-user`.
 
+To reset a forgotten password (this also signs the user out on every device):
+
+```bash
+docker compose exec api python -m app.cli set-password --email admin@acme.example
+```
+
 ## Optional bundled Ollama
 
 ```bash

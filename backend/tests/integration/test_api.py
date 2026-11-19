@@ -214,6 +214,33 @@ def test_logout_revokes_the_refresh_token(
     )
 
 
+def test_operator_password_reset_revokes_sessions(
+    api: TestClient, make_account: Callable[..., Account], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import argparse
+
+    from app import cli
+
+    a = make_account("alpha", "a@alpha.example")
+    tokens = api.post(
+        "/api/v1/auth/login", json={"email": a.email, "password": a.password, "workspace": "alpha"}
+    ).json()
+    new_password = f"pw-{uuid.uuid4().hex}"
+    monkeypatch.setenv("RAG_CLI_PASSWORD", new_password)
+    cli.set_password(argparse.Namespace(email="A@alpha.example"))
+
+    old = {"email": a.email, "password": a.password, "workspace": "alpha"}
+    assert api.post("/api/v1/auth/login", json=old).status_code == 401
+    new = {**old, "password": new_password}
+    assert api.post("/api/v1/auth/login", json=new).status_code == 200
+    refresh = api.post("/api/v1/auth/refresh", json={"refresh_token": tokens["refresh_token"]})
+    assert refresh.status_code == 401
+
+    monkeypatch.setenv("RAG_CLI_PASSWORD", "short")
+    with pytest.raises(ValueError, match="at least"):
+        cli.set_password(argparse.Namespace(email=a.email))
+
+
 @pytest.mark.parametrize("token", ["", "Bearer", "Bearer not.a.jwt", "Basic abc"])
 def test_bad_tokens_are_rejected(api: TestClient, token: str) -> None:
     assert api.get("/api/v1/me", headers={"Authorization": token}).status_code == 401
